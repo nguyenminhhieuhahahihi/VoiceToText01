@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice-to-Text</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Voice to Text - Real-time Speech Recognition
+        </h2>
+        <textarea id="textArea" placeholder="Kết quả sẽ hiển thị ở đây..." rows="10"></textarea>
+
+        <div class="buttons">
+            <div class="left-buttons">
+                <button id="btnVoice">🎤 Start</button>
+                <button id="btnCopy" disabled>📋 Copy</button>
+                <button id="btnClear" disabled>🗑 Clear</button>
+                <button id="btnSelectChar">🔤 Select Letter</button>
+                <button id="btnTranslate" disabled>🌐 Translate</button>
+            </div>
+            <img id="helpIcon" class="help-icon" src="help.png" alt="Help">
+        </div>
+
+        <div id="notification" class="notification"></div>
+        <div id="translateNotification" class="notification"></div>
+    </div>
+
+    <!-- Translate Dialog -->
+    <div id="translateDialog" class="dialog">
+        <div class="dialog-content">
+            <span id="closeTranslateDialog" class="close">&times;</span>
+            <h3>Translated Text</h3>
+            <textarea id="translatedText" rows="10" readonly></textarea>
+            <span id="translateLoading" style="display:none; margin-left:10px;">⏳ Translating...</span>
+            <button id="btnCopyTranslated">📋 Copy</button>
+        </div>
+    </div>
+
+    <!-- Dialog hướng dẫn -->
+    <div id="guideDialog" class="dialog">
+        <div class="dialog-content-help">
+            <span id="closeDialog" class="close">&times;</span>
+            <h3>Bảng hướng dẫn</h3>
+            <table class="guide-table">
+                <thead>
+                    <tr>
+                        <th>Nội dung nói</th>
+                        <th>Kết quả</th>
+                        <th>Ví dụ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>chấm</td>
+                        <td>.</td>
+                        <td>Xin chào chấm → "Xin chào."</td>
+                    </tr>
+                    <tr>
+                        <td>chấm than</td>
+                        <td>!</td>
+                        <td>Thật tuyệt chấm than → "Thật tuyệt!"</td>
+                    </tr>
+                    <tr>
+                        <td>chấm hỏi</td>
+                        <td>?</td>
+                        <td>Bạn khỏe không chấm hỏi → "Bạn khỏe không?"</td>
+                    </tr>
+                    <tr>
+                        <td>phẩy</td>
+                        <td>,</td>
+                        <td>Tôi thích cà phê phẩy trà sữa → "Tôi thích cà phê, trà sữa"</td>
+                    </tr>
+                    <tr>
+                        <td>xuống dòng</td>
+                        <td>Newline</td>
+                        <td>Xin chào xuống dòng Tôi tên là Hiếu →
+                            <pre>Xin chào
+Tôi tên là Hiếu</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>a còng</td>
+                        <td>@</td>
+                        <td>Liên hệ tại example a còng gmail chấm com → "Liên hệ tại example@gmail.com"</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Dialog Select Letter / Keyboard -->
+    <div id="charDialog" class="dialog">
+        <div class="dialog-content">
+            <span id="closeCharDialog" class="close">&times;</span>
+            <h3>Select Letter</h3>
+            <div id="keyboard" class="keyboard"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
