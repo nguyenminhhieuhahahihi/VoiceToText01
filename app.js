@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const translatedText = document.getElementById("translatedText");
     const btnCopyTranslated = document.getElementById("btnCopyTranslated");
     const translateNotification = document.getElementById("translateNotification");
-    const translateLoading = document.getElementById("translateLoading");
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -191,9 +190,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Dialog Bảng chữ cái ---
     btnSelectChar.addEventListener("click", () => {
         if (isRecording) return; // không mở khi đang ghi âm
+        const rect = textArea.getBoundingClientRect();
+        charDialog.style.top = rect.bottom + window.scrollY + "px";
+        charDialog.style.left = rect.left + window.scrollX + "px";
+        charDialog.style.width = rect.width + "px";
         charDialog.style.display = "block";
     });
     closeCharDialog.addEventListener("click", () => charDialog.style.display = "none");
+
+    // ======= Update khi resize màn hình =======
+    window.addEventListener("resize", () => {
+        if(charDialog.style.display === "block") {
+            const rect = textArea.getBoundingClientRect();
+            charDialog.style.top = rect.bottom + window.scrollY + "px";
+            charDialog.style.left = rect.left + window.scrollX + "px";
+            charDialog.style.width = rect.width + "px";
+        }
+    });
 
     window.addEventListener("click", (e) => {
         if (e.target === guideDialog) guideDialog.style.display = "none";
@@ -212,12 +225,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const vietnameseMap = {
         "a":["á","à","ả","ã","ạ","ă","ắ","ằ","ẳ","ẵ","ặ","â","ấ","ầ","ẩ","ẫ","ậ"],
         "e":["é","è","ẻ","ẽ","ẹ","ê","ế","ề","ể","ễ","ệ"],
+        "d":["đ"],
         "i":["í","ì","ỉ","ĩ","ị"],
         "o":["ó","ò","ỏ","õ","ọ","ô","ố","ồ","ổ","ỗ","ộ","ơ","ớ","ờ","ở","ỡ","ợ"],
         "u":["ú","ù","ủ","ũ","ụ","ư","ứ","ừ","ử","ữ","ự"],
         "y":["ý","ỳ","ỷ","ỹ","ỵ"],
         "A":["Á","À","Ả","Ã","Ạ","Ă","Ắ","Ằ","Ẳ","Ẵ","Ặ","Â","Ấ","Ầ","Ẩ","Ẫ","Ậ"],
         "E":["É","È","Ẻ","Ẽ","Ẹ","Ê","Ế","Ề","Ể","Ễ","Ệ"],
+        "D":["Đ"],
         "I":["Í","Ì","Ỉ","Ĩ","Ị"],
         "O":["Ó","Ò","Ỏ","Õ","Ọ","Ô","Ố","Ồ","Ổ","Ỗ","Ộ","Ơ","Ớ","Ờ","Ở","Ỡ","Ợ"],
         "U":["Ú","Ù","Ủ","Ũ","Ụ","Ư","Ứ","Ừ","Ử","Ữ","Ự"],
@@ -243,7 +258,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.dataset.key = key;
                 if (key === "Clear") {
                     btn.classList.add("clear-key");
+                    const hasText = textArea.value.trim().length > 0;
+                    btn.disabled = !hasText;
                 }
+                if (key === "Enter") {
+                    btn.disabled = false;
+                }
+
+                 if (key === "⌫") {
+                    const hasText = textArea.value.trim().length > 0;
+                    btn.disabled = !hasText;
+                }
+              
                 if (["t","r","a","m","T","R","A","M"].includes(key)) {
                     btn.classList.add("highlight-key");
                 }
@@ -256,7 +282,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         container.classList.toggle("shift", isShift);
                         renderKeyboard(container);
                     }
-                    else if (key === "⌫") textArea.value = textArea.value.slice(0,-1);
+                    else if (key === "⌫") {
+                        textArea.value = textArea.value.slice(0,-1);
+                        renderKeyboard(container);
+                    } 
                     else if (key === "Enter") textArea.value += "\n";
                     else if (key === "Space") textArea.value += " ";
                     else if(key === "Clear") {   // xử lý nút Clear
@@ -264,11 +293,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         savedTranscript = "";
                         updateButtons();
                         showNotification("All text has been cleared from the textarea successfully!");
+                        renderKeyboard(container);
                     }
                     else textArea.value += btn.textContent;
 
                     savedTranscript = textArea.value;
                     updateButtons();
+                    renderKeyboard(container);
                 });
 
                 const variants = vietnameseMap[key];

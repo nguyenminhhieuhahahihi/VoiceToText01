@@ -140,7 +140,6 @@ button.recording:hover {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.4);
     overflow: hidden;
 }
 
@@ -160,7 +159,7 @@ button.recording:hover {
 
 .dialog-content {
     background-color: #fff;
-    margin: 23% auto; /* cách top/bottom theo viewport */
+    margin: 15% auto; /* cách top/bottom theo viewport */
     padding: 20px;
     border-radius: 8px;
     width: 90%;
@@ -250,6 +249,17 @@ button.recording:hover {
     transition: background 0.2s, color 0.2s;
 }
 
+.keyboard .key:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    background-color: #ccc !important;
+    color: #666 !important;
+    border: 1px solid #999 !important;
+    display: inline-flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
 .keyboard .key:hover {
     background: #9aa598;
 }
@@ -258,6 +268,10 @@ button.recording:hover {
 .keyboard.shift .key {
     background-color: #f0cdd1;
     color: rgb(234, 63, 63);
+}
+
+.keyboard.shift .key:hover {
+    background: #9aa598;
 }
 
 /* ================= Tooltip ================= */
@@ -276,8 +290,8 @@ button.recording:hover {
     opacity: 0;
     transition: opacity 0.15s;
     max-width: 90vw;
-    width: max-content;
-    min-width: max-content;
+    white-space: normal !important;
+    word-break: break-word;
 }
 
 .char-tooltip .tooltip-key {
@@ -412,4 +426,21 @@ button.recording:hover {
         margin: 15% auto;
         padding: 15px;
     }
+}
+
+#charDialog {
+    display: none; 
+    position: absolute; /* thay fixed -> absolute */
+    z-index: 1000;
+    width: 100%; /* rộng bằng textarea */
+    max-width: 700px; /* giữ max-width container */
+}
+
+#charDialog .dialog-content {
+    margin: 0; /* bỏ margin auto */
+    padding: 15px;
+    border-radius: 8px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background-color: #fff;
 }
