@@ -350,27 +350,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Nút Translate toggle Việt ↔ Anh
     btnTranslate.addEventListener("click", async () => {
-        if (!textArea.value.trim()) return;
-
-        const currentLang = translatedText.dataset.lang; // "vi" hoặc "en"
-        const targetLang = currentLang === "vi" ? "en" : "vi";
-
-        // Hiển thị loading
-        translateLoading.style.display = "inline";
-        translatedText.value = "";
-        await new Promise(r => setTimeout(r, 10));
+        const sourceText = textArea.value.trim();
+        if (!sourceText) return;
 
         try {
-            const translated = await translateText(textArea.value, targetLang);
-            translatedText.value = translated;
+            // Chỉ gọi 1 API
+            // tl=vi nếu muốn dịch sang tiếng Việt, Google sẽ tự nhận dạng ngôn ngữ nguồn
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=auto&dt=t&q=${encodeURIComponent(sourceText)}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Network error");
+            const data = await res.json();
+
+            // data[2] là ngôn ngữ nguồn
+            const sourceLang = data[2];
+            // Nếu nguồn là tiếng Việt -> dịch sang Anh, ngược lại dịch sang Việt
+            const targetLang = sourceLang === "vi" ? "en" : "vi";
+
+            // Tạo kết quả dịch từ phần tử trả về
+            const translated = data[0].map(part => part[0]).join("");
+
+            // Nếu ngôn ngữ nguồn là targetLang rồi, gọi lại API với tl=targetLang để dịch
+            if (sourceLang !== targetLang) {
+                const finalUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(sourceText)}`;
+                const res2 = await fetch(finalUrl);
+                const data2 = await res2.json();
+                translatedText.value = data2[0].map(p => p[0]).join("");
+            } else {
+                translatedText.value = translated;
+            }
+
             translatedText.dataset.lang = targetLang;
             translateDialog.style.display = "block";
         } catch (err) {
+            console.error("Translate error:", err);
             alert("Translation failed. Please try again.");
-        } finally {
-            translateLoading.style.display = "none"; // ẩn loading
         }
     });
+
 
     // Đóng dialog
     closeTranslateDialog.addEventListener("click", () => translateDialog.style.display = "none");

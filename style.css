@@ -363,6 +363,8 @@ button.recording:hover {
     cursor: pointer;
     background-color: #007bff;
     color: #fff;
+    display: flex;
+    margin-left: auto;
 }
 
 #btnCopyTranslated:hover {
