@@ -323,6 +323,27 @@ button.recording:hover {
     background: #f0cdd1;
 }
 
+.key[data-key="Copy"] {
+    background-color: #007bff;
+    color: #fff;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.keyboard.shift .key[data-key="Copy"] {
+    background-color: #007bff;
+    color: #fff;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.keyboard.shift .clear-key {
+    background-color: #dc3545;  /* màu đỏ */
+    color: #fff;
+}
+
+.keyboard.shift .clear-key:hover {
+    background-color: #a71d2a;  /* đỏ đậm khi hover */
+}
+
 .keyboard .clear-key {
     background-color: #dc3545;  /* màu đỏ */
     color: #fff;

@@ -145,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnClear.disabled = !hasText || isRecording;
         btnSelectChar.disabled = isRecording;
         btnTranslate.disabled = !hasText || isRecording;
+        syncKeyboardState();
     }
 
     function showNotification(msg, duration = 1500) {
@@ -218,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["q","w","e","r","t","y","u","i","o","p"],
         ["a","s","d","f","g","h","j","k","l"],
         ["Shift","z","x","c","v","b","n","m","⌫"],
-        ["Space","Enter","Clear"]
+        ["Space","Enter","Clear","Copy"]
     ];
     let isShift = false;
 
@@ -258,16 +259,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.dataset.key = key;
                 if (key === "Clear") {
                     btn.classList.add("clear-key");
-                    const hasText = textArea.value.trim().length > 0;
-                    btn.disabled = !hasText;
+                     btn.disabled = btnClear.disabled;
                 }
                 if (key === "Enter") {
                     btn.disabled = false;
                 }
 
-                 if (key === "⌫") {
-                    const hasText = textArea.value.trim().length > 0;
-                    btn.disabled = !hasText;
+                if (key === "⌫") {
+                    btn.disabled = btnClear.disabled;
+                }
+                if (key === "Copy") {
+                    btn.disabled = btnCopy.disabled;
                 }
               
                 if (["t","r","a","m","T","R","A","M"].includes(key)) {
@@ -280,11 +282,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (key === "Shift") {
                         isShift = !isShift;
                         container.classList.toggle("shift", isShift);
-                        renderKeyboard(container);
                     }
                     else if (key === "⌫") {
                         textArea.value = textArea.value.slice(0,-1);
-                        renderKeyboard(container);
                     } 
                     else if (key === "Enter") textArea.value += "\n";
                     else if (key === "Space") textArea.value += " ";
@@ -293,7 +293,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         savedTranscript = "";
                         updateButtons();
                         showNotification("All text has been cleared from the textarea successfully!");
-                        renderKeyboard(container);
+                    }
+                    else if (key === "Copy") {
+                        if (!textArea.value.trim()) return;
+                        navigator.clipboard.writeText(textArea.value).then(() => {
+                            showNotification("The text has been successfully copied to your clipboard");
+                        });
                     }
                     else textArea.value += btn.textContent;
 
@@ -434,4 +439,19 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => translateNotification.style.display = "none", 2000);
         });
     });
+
+    function syncKeyboardState() {
+        const hasText = textArea.value.trim().length > 0;
+
+        const keys = keyboardContainer.querySelectorAll(".key");
+        keys.forEach(key => {
+            const k = key.dataset.key;
+
+            if (k === "Clear") key.disabled = !hasText || isRecording;
+            if (k === "Copy") key.disabled = !hasText || isRecording;
+
+            if (k === "⌫") key.disabled = !hasText || isRecording;
+        });
+    }
+
 });
