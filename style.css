@@ -517,10 +517,9 @@ button.recording:hover {
     }
 }
 
-/* ================= Responsive cho runner & catwalk màn hình nhỏ ================= */
-@media (max-width: 480px) {
-    #runner, #catwalk {
-        width: 80px;
-        max-width: 25vw;
+@media (max-width: 1200px) {
+    #runner,
+    #catwalk {
+        display: none;
     }
 }
