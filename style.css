@@ -382,12 +382,19 @@ button.recording:hover {
 
 #translatedText {
     width: 100%;
+    min-height: 200px;
+    max-height: 30vh; /* tối ưu mobile */
+    resize: vertical;
     padding: 10px;
     font-size: 16px;
+    line-height: 1.5;
     border-radius: 6px;
     border: 1px solid #ccc;
-    resize: vertical;
-    margin-bottom: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    outline: none;
+    background-color: #fafafa;
 }
 
 #btnCopyTranslated {
@@ -449,7 +456,7 @@ button.recording:hover {
     }
 }
 
-#charDialog {
+#charDialog, #translateDialog {
     display: none; 
     position: absolute; /* thay fixed -> absolute */
     z-index: 1000;
@@ -457,11 +464,63 @@ button.recording:hover {
     max-width: 700px; /* giữ max-width container */
 }
 
-#charDialog .dialog-content {
+#charDialog .dialog-content, #translateDialog .dialog-content {
     margin: 0; /* bỏ margin auto */
     padding: 15px;
     border-radius: 8px;
     width: 100%;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     background-color: #fff;
+}
+
+/* ================= Runner & Catwalk ================= */
+#runner, #catwalk {
+    position: fixed;
+    bottom: 10px;
+    left: -200px;
+    width: 150px;
+    height: auto;
+    animation: runAcross 30s linear infinite;
+    pointer-events: none;
+}
+
+#runner { animation-delay: 2s; }
+
+@keyframes runAcross {
+    0% { transform: translateX(0) scaleX(1); }
+    49% { transform: translateX(calc(100vw + 200px)) scaleX(1); }
+    50% { transform: translateX(calc(100vw + 200px)) scaleX(-1); } /* lật nhân vật */
+    100% { transform: translateX(0) scaleX(-1); }
+}
+/* ================= Music & WelcomeBack (hiện trên laptop trở lên) ================= */
+#music, #welcomeback {
+    position: fixed;
+    pointer-events: none;
+    width: 400px;
+    height: auto;
+    display: none; /* mặc định ẩn */
+    z-index: -100;
+}
+
+/* Chỉ hiển thị từ laptop trở lên */
+@media (min-width: 1200px) {
+    #music {
+        top: 20px;
+        right: 10px;
+        display: block;
+    }
+
+    #welcomeback {
+        top: 20px;
+        left: 10px;
+        display: block;
+    }
+}
+
+/* ================= Responsive cho runner & catwalk màn hình nhỏ ================= */
+@media (max-width: 480px) {
+    #runner, #catwalk {
+        width: 80px;
+        max-width: 25vw;
+    }
 }

@@ -199,6 +199,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     closeCharDialog.addEventListener("click", () => charDialog.style.display = "none");
 
+     btnTranslate.addEventListener("click", () => {
+        if (isRecording) return; // không mở khi đang ghi âm
+        const rect = textArea.getBoundingClientRect();
+        translateDialog.style.top = rect.bottom + window.scrollY + "px";
+        translateDialog.style.left = rect.left + window.scrollX + "px";
+        translateDialog.style.width = rect.width + "px";
+        translateDialog.style.display = "block";
+    });
+
     // ======= Update khi resize màn hình =======
     window.addEventListener("resize", () => {
         if(charDialog.style.display === "block") {
@@ -206,6 +215,15 @@ document.addEventListener("DOMContentLoaded", () => {
             charDialog.style.top = rect.bottom + window.scrollY + "px";
             charDialog.style.left = rect.left + window.scrollX + "px";
             charDialog.style.width = rect.width + "px";
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if(translateDialog.style.display === "block") {
+            const rect = textArea.getBoundingClientRect();
+            translateDialog.style.top = rect.bottom + window.scrollY + "px";
+            translateDialog.style.left = rect.left + window.scrollX + "px";
+            translateDialog.style.width = rect.width + "px";
         }
     });
 
