@@ -13,6 +13,7 @@
         <h2>Voice to Text - Real-time Speech Recognition
         </h2>
         <textarea id="textArea" placeholder="Results will appear here..." rows="10"></textarea>
+        <span id="charError" style="color:red; display:none; font-size:13px;"></span>
 
         <div class="buttons">
             <div class="left-buttons">
@@ -27,6 +28,11 @@
 
         <div id="notification" class="notification"></div>
         <div id="translateNotification" class="notification"></div>
+        <!-- Loading Spinner -->
+        <div id="translateLoading" class="translate-loading" style="display:none;">
+            <div class="spinner"></div>
+            <p>Translating...</p>
+        </div>
     </div>
 
     <!-- Translate Dialog -->

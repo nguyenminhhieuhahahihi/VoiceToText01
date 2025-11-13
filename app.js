@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCopyTranslated = document.getElementById("btnCopyTranslated");
     const translateNotification = document.getElementById("translateNotification");
 
+    const translateLoading = document.getElementById("translateLoading");
+    const charError = document.getElementById("charError");
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     let recognition = null;
@@ -29,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let savedTranscript = "";
     let silenceTimeout = null;
     let ignoreResults = false;
+    const maxLen = 3000;
 
     // --- Mapping từ → ký tự ---
     const wordToCharMap = {
@@ -140,10 +144,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Update trạng thái nút ---
     function updateButtons() {
+        
         const hasText = textArea.value.trim().length > 0;
         btnCopy.disabled = !hasText || isRecording;
         btnClear.disabled = !hasText || isRecording;
-        btnSelectChar.disabled = isRecording;
+        btnSelectChar.disabled = isRecording || textArea.value.length == maxLen;
         btnTranslate.disabled = !hasText || isRecording;
         syncKeyboardState();
     }
@@ -180,9 +185,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     textArea.addEventListener("input", () => {
-        if (!isRecording) savedTranscript = textArea.value;
-        updateButtons();
-    });
+    const text = textArea.value;
+
+    if (text.length > maxLen) {
+        // Cắt bớt chuỗi nếu vượt quá giới hạn
+        textArea.value = text.slice(0, maxLen);
+
+        // Hiện lỗi
+        charError.textContent = `⚠️ You’ve reached the maximum limit of ${maxLen} characters.`;
+        charError.style.display = "block";
+    } else {
+        // Ẩn lỗi khi chưa đạt giới hạn
+        charError.style.display = "none";
+    }
+
+    // Disable nút Start (Voice) nếu vượt giới hạn
+    btnVoice.disabled = textArea.value.length == maxLen;
+
+
+    if (!isRecording) savedTranscript = textArea.value;
+    updateButtons();
+});
 
     // --- Dialog Hướng dẫn ---
     helpIcon.addEventListener("click", () => guideDialog.style.display = "block");
@@ -297,6 +320,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.addEventListener("click", () => {
                     if (isRecording) return;
 
+                    let charToAdd = btn.textContent;
+
                     if (key === "Shift") {
                         isShift = !isShift;
                         container.classList.toggle("shift", isShift);
@@ -318,7 +343,17 @@ document.addEventListener("DOMContentLoaded", () => {
                             showNotification("The text has been successfully copied to your clipboard");
                         });
                     }
-                    else textArea.value += btn.textContent;
+                    else {
+                        // --- Kiểm tra maxLen trước khi thêm ---
+                        if (textArea.value.length + charToAdd.length > maxLen) {
+                            charDialog.style.display = "none"; // tự đóng dialog
+                            charError.textContent = `⚠️ You’ve reached the maximum limit of ${maxLen} characters.`;
+                            charError.style.display = "block";
+                            updateButtons();
+                            return;
+                        }
+                        textArea.value += charToAdd;
+                    }
 
                     savedTranscript = textArea.value;
                     updateButtons();
@@ -407,6 +442,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const sourceText = textArea.value.trim();
         if (!sourceText) return;
 
+        // 1️⃣ Ẩn dialog dịch nếu đang mở, hiển thị loading spinner
+        translateDialog.style.display = "none";
+        translateLoading.style.display = "flex";
+
         try {
             // Chỉ gọi 1 API
             // tl=vi nếu muốn dịch sang tiếng Việt, Google sẽ tự nhận dạng ngôn ngữ nguồn
@@ -434,8 +473,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             translatedText.dataset.lang = targetLang;
-            translateDialog.style.display = "block";
+
+             // 4️⃣ Ẩn loading, hiện dialog dịch
+            translateLoading.style.display = "none";
+            translateDialog.style.display = "flex";
         } catch (err) {
+            // Ẩn loading nếu có lỗi
+            translateLoading.style.display = "none";
             console.error("Translate error:", err);
             alert("Translation failed. Please try again.");
         }
