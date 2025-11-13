@@ -101,7 +101,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            textArea.value = (savedTranscript + finalText + interimText).trim();
+            let newText = (savedTranscript + finalText + interimText).trim();
+            // --- Check maxLen ---
+            if (newText.length > maxLen) {
+                textArea.value = newText.slice(0, maxLen);
+                charError.textContent = `⚠️ You’ve reached the maximum limit of ${maxLen} characters.`;
+                charError.style.display = "block";
+                stopRecording();
+            } else {
+                textArea.value = newText;
+                charError.style.display = "none";
+            }
+
             textArea.scrollTop = textArea.scrollHeight;
             updateButtons();
         };
@@ -148,18 +159,35 @@ document.addEventListener("DOMContentLoaded", () => {
         const hasText = textArea.value.trim().length > 0;
         btnCopy.disabled = !hasText || isRecording;
         btnClear.disabled = !hasText || isRecording;
-        btnSelectChar.disabled = isRecording || textArea.value.length == maxLen;
+        btnSelectChar.disabled = isRecording || textArea.value.length >= maxLen;
         btnTranslate.disabled = !hasText || isRecording;
+        btnVoice.disabled = textArea.value.length >= maxLen;
         syncKeyboardState();
     }
 
-    function showNotification(msg, duration = 1500) {
-        notification.textContent = msg;
-        notification.style.display = "block";
-        setTimeout(() => {
-            notification.style.display = "none";
-        }, duration);
+    function showNotification(msg, type = "info", duration = 3000) {
+    notification.textContent = msg;
+    notification.style.display = "block";
+
+    switch(type) {
+        case "warning":
+            notification.style.color = "#000";  // màu chữ đen cho warning
+            notification.style.backgroundColor = "#FFD700"; // ví dụ nền vàng
+            break;
+        case "success":
+            notification.style.color = "#fff";
+            notification.style.backgroundColor = "#28a745"; // xanh lá
+            break;
+        default:
+            notification.style.color = "#000";
+            notification.style.backgroundColor = "#eee"; // màu mặc định
     }
+
+    setTimeout(() => {
+        notification.style.display = "none";
+    }, duration);
+}
+
 
     // --- Buttons chức năng ---
     btnVoice.addEventListener("click", () => {
@@ -169,14 +197,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnCopy.addEventListener("click", () => {
         if (!textArea.value.trim()) return;
-        navigator.clipboard.writeText(textArea.value).then(() => showNotification("The text has been successfully copied to your clipboard"));
+        navigator.clipboard.writeText(textArea.value).then(() => showNotification("The text has been successfully copied to your clipboard", "success"));
     });
 
     btnClear.addEventListener("click", () => {
         textArea.value = "";
         savedTranscript = "";
         updateButtons();
-        showNotification("All text has been cleared from the textarea successfully!");
+        charError.textContent = '';
+        showNotification("All text has been cleared from the textarea successfully!", "success");
     });
 
     // Ngăn thao tác với textarea khi đang ghi âm
@@ -186,22 +215,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     textArea.addEventListener("input", () => {
     const text = textArea.value;
+    
+    // ✅ Hiển thị notification warning khi đạt maxLen
+    if (text.length == maxLen) {
+        showNotification(`⚠️ You’ve reached the maximum limit of ${maxLen} characters.`, "warning");
+    }
 
     if (text.length > maxLen) {
-        // Cắt bớt chuỗi nếu vượt quá giới hạn
         textArea.value = text.slice(0, maxLen);
-
-        // Hiện lỗi
         charError.textContent = `⚠️ You’ve reached the maximum limit of ${maxLen} characters.`;
         charError.style.display = "block";
+        charDialog.style.display = "none";
     } else {
-        // Ẩn lỗi khi chưa đạt giới hạn
         charError.style.display = "none";
     }
 
-    // Disable nút Start (Voice) nếu vượt giới hạn
-    btnVoice.disabled = textArea.value.length == maxLen;
-
+    btnVoice.disabled = textArea.value.length >= maxLen;
 
     if (!isRecording) savedTranscript = textArea.value;
     updateButtons();
@@ -335,16 +364,26 @@ document.addEventListener("DOMContentLoaded", () => {
                         textArea.value = "";
                         savedTranscript = "";
                         updateButtons();
-                        showNotification("All text has been cleared from the textarea successfully!");
+                        charError.textContent = '';
+                        showNotification("All text has been cleared from the textarea successfully!", "success");
                     }
                     else if (key === "Copy") {
                         if (!textArea.value.trim()) return;
                         navigator.clipboard.writeText(textArea.value).then(() => {
-                            showNotification("The text has been successfully copied to your clipboard");
+                            showNotification("The text has been successfully copied to your clipboard", "success");
                         });
                     }
                     else {
                         // --- Kiểm tra maxLen trước khi thêm ---
+    
+                        // ✅ Hiển thị notification warning khi đạt maxLen
+                        if (textArea.value.length == maxLen) {
+                            showNotification(`⚠️ You’ve reached the maximum limit of ${maxLen} characters.`, "warning");
+                            charDialog.style.display = "none"; // tự đóng dialog
+                            updateButtons();
+                            return;
+                        }
+
                         if (textArea.value.length + charToAdd.length > maxLen) {
                             charDialog.style.display = "none"; // tự đóng dialog
                             charError.textContent = `⚠️ You’ve reached the maximum limit of ${maxLen} characters.`;
@@ -476,7 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
              // 4️⃣ Ẩn loading, hiện dialog dịch
             translateLoading.style.display = "none";
-            translateDialog.style.display = "flex";
+            translateDialog.style.display = "block";
         } catch (err) {
             // Ẩn loading nếu có lỗi
             translateLoading.style.display = "none";
