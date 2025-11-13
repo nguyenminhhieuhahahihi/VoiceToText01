@@ -492,18 +492,20 @@ button.recording:hover {
     50% { transform: translateX(calc(100vw + 200px)) scaleX(-1); } /* lật nhân vật */
     100% { transform: translateX(0) scaleX(-1); }
 }
-/* ================= Music & WelcomeBack (hiện trên laptop trở lên) ================= */
+
+/* ================= Music & WelcomeBack ================= */
 #music, #welcomeback {
     position: fixed;
     pointer-events: none;
-    width: 400px;
+    width: 400px; /* mặc định desktop */
     height: auto;
     display: none; /* mặc định ẩn */
     z-index: -100;
+    transition: width 0.3s, transform 0.3s;
 }
 
-/* Chỉ hiển thị từ laptop trở lên */
-@media (min-width: 1200px) {
+/* Laptop trở lên */
+@media (min-width: 1024px) {
     #music {
         top: 20px;
         right: 10px;
@@ -517,7 +519,15 @@ button.recording:hover {
     }
 }
 
-@media (max-width: 1200px) {
+/* Resize ảnh nhỏ dần theo màn hình */
+@media (max-width: 1440px) { #music, #welcomeback { width: 300px; } }
+@media (max-width: 1200px) { #music, #welcomeback { width: 250px; } }
+@media (max-width: 1023px) { 
+    #music, #welcomeback { display: none; } /* ẩn trên tablet trở xuống */
+}
+
+/* Ẩn Runner & Catwalk trên tablet/mobile */
+@media (max-width: 1023px) {
     #runner,
     #catwalk {
         display: none;
