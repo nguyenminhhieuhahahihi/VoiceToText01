@@ -290,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const keyboardLayout = [
         ["q","w","e","r","t","y","u","i","o","p"],
         ["a","s","d","f","g","h","j","k","l"],
-        ["Shift","z","x","c","v","b","n","m","⌫"],
+        ["Caps Lock","z","x","c","v","b","n","m","⌫"],
         ["Space","Enter","Clear","Copy"]
     ];
     let isShift = false;
@@ -353,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     let charToAdd = btn.textContent;
 
-                    if (key === "Shift") {
+                    if (key === "Caps Lock") {
                         isShift = !isShift;
                         container.classList.toggle("shift", isShift);
                     }
