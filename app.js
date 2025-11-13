@@ -215,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     textArea.addEventListener("input", () => {
     const text = textArea.value;
+    translateDialog.style.display = "none";
     
     // ✅ Hiển thị notification warning khi đạt maxLen
     if (text.length == maxLen) {
@@ -226,6 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         charError.textContent = `⚠️ You’ve reached the maximum limit of ${maxLen} characters.`;
         charError.style.display = "block";
         charDialog.style.display = "none";
+        translateDialog.style.display = "none";
     } else {
         charError.style.display = "none";
     }
